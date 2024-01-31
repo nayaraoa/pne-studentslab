@@ -14,4 +14,8 @@ with open('dna.txt', 'r') as f:
 
 
 seq_dict = count_dna_bases(sequence)
-print(seq_dict)
+print('Total length:', seq_dict['Total length'])
+print('A:', seq_dict['A'])
+print('C:', seq_dict['C'])
+print('T:', seq_dict['T'])
+print('G:', seq_dict['G'])
