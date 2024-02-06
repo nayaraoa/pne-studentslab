@@ -16,5 +16,4 @@ print(len(body_seq))
 
 #He did it this way:
 list_contents.pop(0) #removes the header.
-
-print(len(''.join(list_contents))) #turs the list into a sequence with the '' and the joins every element of the list into the same string.
+print(len(''.join(list_contents))) #turs the list into a string with the '' and then joins every element of the list into the same string.
