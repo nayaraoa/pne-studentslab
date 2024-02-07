@@ -1,6 +1,6 @@
 from pathlib import Path
 
-filename = 'sequences/U5.txt'
+filename = '../sequences/U5.txt'
 file_contents = Path(filename).read_text()
 
 list_contents = file_contents.split('\n')

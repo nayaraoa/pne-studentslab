@@ -1,6 +1,6 @@
 from pathlib import Path
 
-filename = 'sequences/ADA.txt'
+filename = '../sequences/ADA.txt'
 file_contents = Path(filename).read_text()
 
 list_contents = file_contents.split('\n')
