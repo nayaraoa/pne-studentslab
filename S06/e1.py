@@ -1,8 +1,4 @@
 from Seq0 import *
-
-
-
-
 class Seq:
     """A class for representing sequences"""
     def __init__(self, strbases):
