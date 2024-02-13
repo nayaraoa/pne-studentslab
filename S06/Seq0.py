@@ -69,4 +69,6 @@ def check(strbases):
 
     if count == length:
         result = True
+    else:
+        result = False
     return result
