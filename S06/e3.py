@@ -16,8 +16,8 @@ def generate_seqs(pattern, number):
             seq_list.append(pattern + seq_list[i-1])
     return seq_list
 
-seq_list1 = Seq(generate_seqs("A", 3)).seq
-seq_list2 = Seq(generate_seqs("AC", 5)).seq
+seq_list1 = Seq(generate_seqs("A", 3)) #.seq
+seq_list2 = Seq(generate_seqs("AC", 5)) #.seq
 
 
 print("List 1:")

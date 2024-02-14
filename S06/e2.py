@@ -13,7 +13,7 @@ print(f"Sequence 2: (Length: {seq_list[1].len()}) {seq_list[1].seq}")
 print(f"Sequence 5: (Length: {seq_list[2].len()}) {seq_list[2].seq}")
 
 
-#the way is asked:
+#other way:
 seq_list = [Seq("ACT"), Seq("GATA"), Seq("CAGATA")]
 def print_seqs(seq_list):
     for i in range (0, len(seq_list)):

@@ -1,0 +1,60 @@
+class Seq:
+    def __init__(self, seq=None):
+        self.seq = seq
+        if seq == None:
+            print('NULL sequence created')
+        else:
+            check = self.check()
+            if check == True:
+                print('New sequence is created!')
+
+            else:
+                self.seq = 'ERROR'
+                print('INVALID sequence!')
+
+    def check(self):
+        length = len(self.seq)
+        count = 0
+        for e in self.seq:
+            if e in ['A', 'T', 'G', 'C']:
+                count += 1
+        if count == length:
+            result = True
+        else:
+            result = False
+        return result
+
+    def seq_len(self):
+        if self.seq == None or self.seq == 'ERROR':
+            length = 0
+        else:
+            length = len(self.seq)
+        return length
+
+    def print_seqs(self):
+        for i in range(0, len(self.seq)):
+            print('Sequence', str(i) + ':', '(Length:', str(len(self.seq[i])) + ')', self.seq[i])
+
+    def seq_count(self):
+        length = self.seq_len()
+        bases_dict = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
+        if length != 0:
+            for e in self.seq:
+                bases_dict[e] += 1
+        return bases_dict
+
+    def seq_reverse(self):
+        if self.seq != None and self.seq != 'ERROR':
+            fragment = self.seq[0:n]
+            reverse = fragment[::-1]
+        return reverse
+
+
+def generate_seqs(pattern, number):
+    seq_list = []
+    for i in range(0, number):
+        if i == 0:
+            seq_list.append(pattern)
+        else:
+            seq_list.append(pattern + seq_list[i - 1])
+    return seq_list
