@@ -45,9 +45,43 @@ class Seq:
 
     def seq_reverse(self):
         if self.seq != None and self.seq != 'ERROR':
-            fragment = self.seq[0:n]
-            reverse = fragment[::-1]
+            reverse = self.seq[::-1]
+        else:
+            reverse = self.seq
         return reverse
+
+    def seq_complement(self):
+        if self.seq != None and self.seq != 'ERROR':
+            complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+            complement_seq = ''
+            for e in self.seq:
+                complement_seq += complement_dict[e]
+        else:
+            complement_seq = self.seq
+        return complement_seq
+
+    def seq_read_fasta(self, filename):
+        with open(filename, 'r') as f:
+            seq = ''
+
+            for line in f:
+                for e in line:
+                    seq += e
+
+        index = seq.index('\n')
+        seq = seq[index:]
+        seq = seq.replace('\n', '')
+        return seq
+
+    def frequent_base(self):
+        count_dict = self.seq_count()
+        values = count_dict.values()
+        max_value = max(values)
+
+        for e in count_dict:
+            if count_dict[e] == max_value:
+                result = e
+        return result
 
 
 def generate_seqs(pattern, number):
