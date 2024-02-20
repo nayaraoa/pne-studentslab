@@ -20,7 +20,7 @@ def generate_seqs(pattern, number):
 seq_list1 = Seq(generate_seqs("A", 3)).seq
 seq_list2 = Seq(generate_seqs("AC", 5)).seq
 
-print(seq_list1)
+
 
 print("\033[94mList 1:\033[0m")
 Seq(seq_list1).print_seqs('94')
