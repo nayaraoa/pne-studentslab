@@ -1,5 +1,5 @@
 Machine         Interface      Date       Place    IP
 mobile          Wifi          27-02-24     lab   10.0.2.2
 Lab computer    Wire          27-02-24     lab   212.128.255.79
-mobile          Wifi          27-02-24     home
+mobile          Wifi          27-02-24     home  192.168.3.54
 
