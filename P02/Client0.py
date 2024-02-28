@@ -19,6 +19,5 @@ class Client:
         response = s.recv(2048).decode("utf-8")
 
         s.close()
-        
         return response
 
