@@ -12,6 +12,9 @@ class Seq:
                 self.seq = 'ERROR'
                 print('INVALID sequence!')
 
+    def __str__(self):
+        return self.seq
+
     def check(self):
         length = len(self.seq)
         count = 0
@@ -71,6 +74,7 @@ class Seq:
         index = seq.index('\n')
         seq = seq[index:]
         seq = seq.replace('\n', '')
+        self.seq = seq
         return seq
 
     def frequent_base(self):

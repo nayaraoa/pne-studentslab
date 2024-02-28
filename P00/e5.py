@@ -7,5 +7,5 @@ FXN = seq_read_fasta('FXN(2).txt')
 
 print('Gene U5:', seq_count(U5))
 print('Gene ADA:', seq_count(ADA))
-print('Gene FRAT1:', seq_count(FRAT1))
+print('Gene FRAT1.txt:', seq_count(FRAT1))
 print('Gene FXN:', seq_count(FXN))
