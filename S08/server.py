@@ -1,7 +1,7 @@
 import socket
 
 def main():
-    HOST = '127.0.0.1'
+    HOST = '212.128.255.11'
     PORT = 8081
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
