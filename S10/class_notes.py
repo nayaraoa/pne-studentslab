@@ -19,3 +19,6 @@
 #hostname -1 para saber el public IP y el private IP
 
 #how to write ourselfs: echo "Hi!" | nc IP PORT
+
+hello = "HELLO"
+print(hello[:2])

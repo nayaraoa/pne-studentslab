@@ -1,6 +1,7 @@
 class Seq:
     def __init__(self, seq=None):
         self.seq = seq
+
         if seq == None:
             print('NULL sequence created')
         else:
@@ -61,6 +62,7 @@ class Seq:
                 complement_seq += complement_dict[e]
         else:
             complement_seq = self.seq
+        complement_seq = complement_seq + "\n"
         return complement_seq
 
     def seq_read_fasta(self, filename):
@@ -86,6 +88,47 @@ class Seq:
             if count_dict[e] == max_value:
                 result = e
         return result
+
+    #def bases_percentage(self):
+        #length = self.seq_len()
+        #bases_dict = {"A": 0, "T": 0, "C": 0, "G": 0}
+        #bases_percent = {"A": 0, "T": 0, "C": 0, "G": 0}
+
+        #if length != 0:
+            #for e in self.seq:
+                #bases_dict[e] += 1
+            #for e in bases_dict:
+                #bases_percent[e] = str(round((bases_dict[e] / length * 100), 1)) + "%"
+
+        #return bases_dict, bases_percent
+
+
+
+    #def PING(self):
+        #return print(f"{Color.GREEN} PING command! {Color.END}")
+
+    #def GET(self, msg):
+        #print(f"{Color.YELLOW} GET {Color.END}")
+        #index = msg[4]
+        #seq_l = ["ACCTCCTCAGCAA", "GGATCTCGATCA", "CCCTAGCCCAAA", "TCCCTTTCCTT"]
+        #return seq_l[index]
+
+
+# Códigos ANSI para cambiar el color del texto
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+
+
 
 
 def generate_seqs(pattern, number):
