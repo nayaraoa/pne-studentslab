@@ -1,4 +1,5 @@
 import socket
+import termcolor
 from Seq1 import Seq
 from Seq1 import Color
 
