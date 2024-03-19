@@ -24,8 +24,8 @@ class NumberGuesser:
         return response
 
 
-IP = "212.128.255.79"
-PORT = 8080
+IP = "127.0.0.1"
+PORT = 8081
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
