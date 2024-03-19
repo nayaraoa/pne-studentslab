@@ -1,0 +1,13 @@
+Web 1:
+    Request line: GET /hello HTTP/1.1
+    The path: hello
+
+Web 2:
+    Request line: GET /file.html HTTP/1.1
+    The path: file
+
+Web 3:
+    Request line: GET /hi/there?name=virus&type=corona HTTP/1.1
+    The path: hi/there?name=virus&type=corona
+
+The URL to access /dna/u5 browser: http://127.0.0.1:8080/dna/u5
