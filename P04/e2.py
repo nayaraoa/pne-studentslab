@@ -15,7 +15,7 @@ def process_client(s):
     print("Request line: ", end="")
     termcolor.cprint(req_line, "green")
 
-    with open('index.html', 'r') as file:
+    with open('P04/html/info/A.html', 'r') as file:
         body = file.read()
 
     status_line = "HTTP/1.1 200 OK\n"
