@@ -1,6 +1,6 @@
 import socket
 import termcolor
-from pathlib import Path
+
 
 IP = "127.0.0.1"
 PORT = 8080
@@ -13,15 +13,21 @@ def process_client(s):
 
     lines = req.split('\n')
     req_line = lines[0]
+
     print("Request line: ", end="")
     termcolor.cprint(req_line, "green", force_color=True)
 
-    read_file = Path("html/info/A.html").read_text()
 
-    if "/info/A" in req_line:
-        body = read_file
+    if "/info/C" in req_line:
+        body = open("html/info/C.html", "r").read()
+    elif "/info/A" in req_line:
+        body = open("html/info/A.html", "r").read()
+    elif "/info/G" in req_line:
+        body = open("html/info/G.html", "r").read()
+    elif "/info/T" in req_line:
+        body = open("html/info/T.html", "r").read()
     else:
-        body = ""
+        body = open("html/error.html", "r").read()
 
     status_line = "HTTP/1.1 200 OK\n"
 
