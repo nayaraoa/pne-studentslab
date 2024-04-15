@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Main server</title>
+      </head>
+      <body style="background-color: white;">
+        <h1>SEQ2 server</h1>
+        <p>Access to the server</p>
+
+        <hr>
+            <form action="ping" method="get">
+                Is the server working?
+                <input type="submit" value="PING">
+            </form>
+
+        <hr>
+            <form action="get" method="get">
+                Get a sequence. Select sequence number
+                <select name="seq">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+                <input type="submit" value="GET">
+            </form>
+
+        <hr>
+            <form action="gene" method="get">
+                Get a gene. Select the name
+                <select name="seq">
+                    <option value="U5">U5</option>
+                    <option value="ADA">ADA</option>
+                    <option value="FRAT1">FRAT1</option>
+                    <option value="FXN">FXN</option>
+                    <option value="RNU6_269P">RNU6_269P</option>
+                </select>
+                <input type="submit" value="GENE">
+            </form>
+
+        <hr>
+            <form action="operation" method="get">
+                Write a sequence:
+                <input type="text" name="seq">
+                <br>
+                select operation
+                <input type="radio" name="op" value="info" checked> Info
+                <input type="radio" name="op" value="comp" checked> Comp
+                <input type="radio" name="op" value="rev" checked> Rev
+                <br>
+                perform operation: <input type="submit" value="OPERATE!">
+            </form>
+
+
+
+      </body>
+    </html>

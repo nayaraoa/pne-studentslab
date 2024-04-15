@@ -79,6 +79,18 @@ class Seq:
         self.seq = seq
         return seq
 
+    def seq_read_fasta_2(self, filename):
+        with open(filename, 'r') as f:
+            seq = ''
+
+            for line in f:
+                for e in line:
+                    seq += e
+
+        index = seq.index('\n')
+        seq = seq[index:]
+        self.seq = seq
+        return seq
     def frequent_base(self):
         count_dict = self.seq_count()
         values = count_dict.values()
@@ -89,18 +101,19 @@ class Seq:
                 result = e
         return result
 
-    #def bases_percentage(self):
-        #length = self.seq_len()
-        #bases_dict = {"A": 0, "T": 0, "C": 0, "G": 0}
-        #bases_percent = {"A": 0, "T": 0, "C": 0, "G": 0}
 
-        #if length != 0:
-            #for e in self.seq:
-                #bases_dict[e] += 1
-            #for e in bases_dict:
-                #bases_percent[e] = str(round((bases_dict[e] / length * 100), 1)) + "%"
+    def bases_percentage(self):
+        length = self.seq_len()
+        bases_dict = {"A": 0, "T": 0, "C": 0, "G": 0}
+        bases_percent = {"A": 0, "T": 0, "C": 0, "G": 0}
 
-        #return bases_dict, bases_percent
+        if length != 0:
+            for e in self.seq:
+                bases_dict[e] += 1
+            for e in bases_dict:
+                bases_percent[e] = str(round((bases_dict[e] / length * 100), 1)) + "%"
+
+        return bases_dict, bases_percent
 
 
 
