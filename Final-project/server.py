@@ -12,6 +12,12 @@ PORT = 8080
 
 socketserver.TCPServer.allow_reuse_address = True
 
+#with open('json/species_list.json', 'r') as f:
+#    species_dict = json.load(f)
+
+
+#print(species_dict["species"][0])
+
 def read_html_file(filename):
     contents = Path("html/" + filename).read_text()
     contents = j.Template(contents)
@@ -20,7 +26,31 @@ def read_html_file(filename):
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         termcolor.cprint(self.requestline, 'green',force_color=True)
+
         command = self.requestline.split(" ")[1].replace("/info", "").replace(".html", "")
+        command2 = command.split("?")[0]
+
+        SERVER = "rest.ensembl.org"
+        PARAMS = "?content-type=application/json"
+
+        ENDPOINT = "/info/species"
+        URL = SERVER + ENDPOINT + PARAMS
+
+        print(f"Server: {SERVER}")
+        print(f"URL: {URL}")
+
+        conn = http.client.HTTPConnection(SERVER)
+
+        try:
+            conn.request("GET", ENDPOINT + PARAMS)
+        except ConnectionRefusedError:
+            print("ERROR! Cannot connect to the Server")
+            exit()
+
+        r1 = conn.getresponse()
+        print(f"Response received!: {r1.status} {r1.reason}\n")
+
+        response_species = json.loads(r1.read().decode("utf-8"))
 
 
         if command == "/" or command == "/index":
@@ -28,45 +58,80 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             content_type = 'text/html'
             error_code = 200
 
-        elif "listSpecies" in command:
-            SERVER = "rest.ensembl.org"
-            ENDPOINT = "/info/species"
-            PARAMS = "?content-type=application/json"
-            URL = SERVER + ENDPOINT + PARAMS
 
-            print(f"Server: {SERVER}")
-            print(f"URL: {URL}")
-
-            conn = http.client.HTTPConnection(SERVER)
+        elif command2 == "/listSpecies":
 
             try:
-                conn.request("GET", ENDPOINT + PARAMS)
-            except ConnectionRefusedError:
-                print("ERROR! Cannot connect to the Server")
-                exit()
-
-            r1 = conn.getresponse()
-            print(f"Response received!: {r1.status} {r1.reason}\n")
-
-            response = json.loads(r1.read().decode("utf-8"))
-
-            print(len(response["species"]))
-
-            try:
-                int(command[12:])
-                limit = command[12:]
+                limit = command.split("=")[1].strip()
+                limit = int(limit)
             except ValueError:
                 limit = ""
 
-            contents = read_html_file("listSpecies.html").render(context={"todisplay": len(response), "todisplay2": limit})
-            content_type = 'application/html'
+            species = []
+            if limit != "":
+                for i in range(0, limit):
+                    species.append(response_species["species"][i]["display_name"])
+            else:
+                for e in response_species["species"]:
+                    species.append(e["display_name"])
 
+            list_species = ""
+            for e in species:
+                list_species += "· " + e + "<br>"
+
+            contents = read_html_file("listSpecies.html").render(context={"todisplay": len(response_species["species"]), "todisplay2": limit, "todisplay3": list_species})
+            content_type = 'text/html'
             error_code = 200
 
 
+        elif command2 == "/Karyotype":
+            common_name = command.split("=")[1].strip()
+            common_name = common_name.replace("+", "_")
+
+            for e in response_species["species"]:
+                if e["common_name"] == common_name:
+                    species_name = e["name"]
+
+
+                    ENDPOINT = "/info/assembly/" + species_name
+                    URL = SERVER + ENDPOINT + PARAMS
+
+
+
+                    print(f"Server: {SERVER}")
+                    print(f"URL: {URL}")
+
+                    conn = http.client.HTTPConnection(SERVER)
+
+                    try:
+                        conn.request("GET", ENDPOINT + PARAMS)
+                    except ConnectionRefusedError:
+                        print("ERROR! Cannot connect to the Server")
+                        exit()
+
+                    r1 = conn.getresponse()
+                    print(f"Response received!: {r1.status} {r1.reason}\n")
+
+                    response = json.loads(r1.read().decode("utf-8"))
+
+                    karyotype = response["karyotype"]
+                    list_karyotype = ""
+                    for e in karyotype:
+                        list_karyotype += "· " + e + "<br>"
+
+                    contents = read_html_file("Karyotype.html").render(context={"todisplay": list_karyotype})
+                    error_code = 200
+                    content_type = 'text/html'
+
+                else:
+                    contents = open("html/error.html", "r").read()
+                    error_code = 200
+                    content_type = 'text/html'
 
         else:
             contents = open("html/error.html", "r").read()
+            error_code = 200
+            content_type = 'text/html'
 
         self.send_response(error_code)
 
