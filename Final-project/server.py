@@ -66,26 +66,34 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
         elif command2 == "/listSpecies":
+            length = len(response_species["species"])
+            limit = command.split("=")[1].strip()
+            if limit != "":
+                try:
 
-            try:
-                limit = command.split("=")[1].strip()
-                limit = int(limit)
-            except ValueError:
-                limit = ""
+                    limit = int(limit)
+                except ValueError:
+                    limit = "error"
 
             species = []
-            if limit != "":
+            if limit != "" and limit != "error" and 0 <= limit <= length:
                 for i in range(0, limit):
                     species.append(response_species["species"][i]["display_name"])
-            else:
+                list_species = ""
+                for e in species:
+                    list_species += "· " + e + "<br>"
+            elif limit == "":
                 for e in response_species["species"]:
                     species.append(e["display_name"])
+                list_species = ""
+                for e in species:
+                    list_species += "· " + e + "<br>"
+            elif limit == "error":
+                list_species = "Unusual limit"
+            else:
+                list_species = "Limit out of range"
 
-            list_species = ""
-            for e in species:
-                list_species += "· " + e + "<br>"
-
-            contents = read_html_file("listSpecies.html").render(context={"todisplay": len(response_species["species"]), "todisplay2": limit, "todisplay3": list_species})
+            contents = read_html_file("listSpecies.html").render(context={"todisplay": length, "todisplay2": limit, "todisplay3": list_species})
             content_type = 'text/html'
             error_code = 200
 
@@ -93,7 +101,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         elif command2 == "/Karyotype":
             common_name = command.split("=")[1].strip()
             common_name = common_name.replace("+", " ").strip().lower()
-
 
             species_list = []
             for e in response_species["species"]:
@@ -138,10 +145,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 content_type = 'text/html'
 
 
-        elif command2 == "\chromosomeLength":
+        elif command2 == "/chromosomeLength":
             command = command.split("?")[1]
-            specie = command.split("=")[1].split("&")[0]
-            chromosome = int(command.split("=")[2])
+            specie = command.split("=")[1].split("&")[0].replace("+", " ").strip()
+            chromosome = int(command.split("=")[2].strip())
+
 
             print(specie, chromosome)
 
@@ -168,9 +176,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                     response = json.loads(r1.read().decode("utf-8"))
 
-                    length = response[chromosome]["length"]
+                    length = response["top_level_region"][chromosome]["length"]
+
+
 
             contents = read_html_file("chromosomeLength.html").render(context={"todisplay": length})
+
+
             content_type = 'text/html'
             error_code = 200
 
