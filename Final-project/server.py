@@ -23,6 +23,7 @@ def read_html_file(filename):
     contents = j.Template(contents)
     return contents
 
+
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         termcolor.cprint(self.requestline, 'green',force_color=True)
