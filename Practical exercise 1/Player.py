@@ -1,9 +1,9 @@
 from Client0 import Client
 
-IP = "127.0.0.1"
-PORT = 8081
+IP = "212.128.255.79"
+PORT = 8080
 
 c = Client(IP, PORT)
 
-response = c.talk("5")
+response = c.talk("32")
 print(response)

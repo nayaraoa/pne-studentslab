@@ -128,6 +128,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     error_code = 200
                     content_type = 'text/html'
 
+        elif command2 == "\chromosomeLength":
+
+            contents = read_html_file("chromosomeLength.html").render(context={"todisplay": list_karyotype})
+            content_type = 'text/html'
+            error_code = 200
+
         else:
             contents = open("html/error.html", "r").read()
             error_code = 200
