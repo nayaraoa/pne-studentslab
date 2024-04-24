@@ -4,6 +4,7 @@ import termcolor
 import jinja2 as j
 from pathlib import Path
 import json
+from pprint import pprint
 
 
 
@@ -23,6 +24,9 @@ def read_html_file(filename):
     contents = j.Template(contents)
     return contents
 
+def specie_exist(list_species, name_specie):
+    if name_specie in list_species:
+        return True
 
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
@@ -88,17 +92,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif command2 == "/Karyotype":
             common_name = command.split("=")[1].strip()
-            common_name = common_name.replace("+", "_")
+            common_name = common_name.replace("+", " ").strip().lower()
 
+
+            species_list = []
             for e in response_species["species"]:
-                if e["common_name"] == common_name:
+                species_list.append(e["display_name"].lower())
+                if e["display_name"].strip().lower() == common_name:
                     species_name = e["name"]
-
 
                     ENDPOINT = "/info/assembly/" + species_name
                     URL = SERVER + ENDPOINT + PARAMS
-
-
 
                     print(f"Server: {SERVER}")
                     print(f"URL: {URL}")
@@ -120,19 +124,53 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     list_karyotype = ""
                     for e in karyotype:
                         list_karyotype += "· " + e + "<br>"
+                    if list_karyotype == "":
+                        list_karyotype = "Karyotype not found"
 
                     contents = read_html_file("Karyotype.html").render(context={"todisplay": list_karyotype})
                     error_code = 200
                     content_type = 'text/html'
 
-                else:
-                    contents = open("html/error.html", "r").read()
-                    error_code = 200
-                    content_type = 'text/html'
+            existance = specie_exist(species_list, common_name)
+            if existance != True:
+                contents = open("html/error.html", "r").read()
+                error_code = 200
+                content_type = 'text/html'
+
 
         elif command2 == "\chromosomeLength":
+            command = command.split("?")[1]
+            specie = command.split("=")[1].split("&")[0]
+            chromosome = int(command.split("=")[2])
 
-            contents = read_html_file("chromosomeLength.html").render(context={"todisplay": list_karyotype})
+            print(specie, chromosome)
+
+            for e in response_species["species"]:
+                if e["display_name"].strip().lower() == specie:
+                    species_name = e["name"]
+
+                    ENDPOINT = "/info/assembly/" + species_name
+                    URL = SERVER + ENDPOINT + PARAMS
+
+                    print(f"Server: {SERVER}")
+                    print(f"URL: {URL}")
+
+                    conn = http.client.HTTPConnection(SERVER)
+
+                    try:
+                        conn.request("GET", ENDPOINT + PARAMS)
+                    except ConnectionRefusedError:
+                        print("ERROR! Cannot connect to the Server")
+                        exit()
+
+                    r1 = conn.getresponse()
+                    print(f"Response received!: {r1.status} {r1.reason}\n")
+
+                    response = json.loads(r1.read().decode("utf-8"))
+
+                    length = response[chromosome]["length"]
+
+            contents = read_html_file("chromosomeLength.html").render(context={"todisplay": length})
             content_type = 'text/html'
             error_code = 200
 
