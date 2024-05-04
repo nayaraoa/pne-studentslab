@@ -7,12 +7,12 @@
         <body style="background-color: #d8bfd8">
             <p>The total number of species in the ensemble is: {{context.todisplay}}</p>
             <p>The limit you have selected is: {{context.todisplay2}}</p>
-            <p>The names of the species are:
-                <br>
-                {{context.todisplay3}}
-            </p>
-
-
+            <p>The names of the species are:</p>
+            <ul>
+                {% for e in context.todisplay3 %}
+                <li>{{e}}</li>
+                {% endfor %}
+            </ul>
             <p>
             <a href="/info/index.html">Main page</a>
             </p>

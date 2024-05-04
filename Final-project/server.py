@@ -5,6 +5,7 @@ import jinja2 as j
 from pathlib import Path
 import json
 from pprint import pprint
+from Seq1 import Seq
 
 
 
@@ -27,7 +28,6 @@ def read_html_file(filename):
 def specie_exist(list_species, name_specie):
     if name_specie in list_species:
         return True
-
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -70,7 +70,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             limit = command.split("=")[1].strip()
             if limit != "":
                 try:
-
                     limit = int(limit)
                 except ValueError:
                     limit = "error"
@@ -79,21 +78,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if limit != "" and limit != "error" and 0 <= limit <= length:
                 for i in range(0, limit):
                     species.append(response_species["species"][i]["display_name"])
-                list_species = ""
-                for e in species:
-                    list_species += "· " + e + "<br>"
             elif limit == "":
                 for e in response_species["species"]:
                     species.append(e["display_name"])
-                list_species = ""
-                for e in species:
-                    list_species += "· " + e + "<br>"
             elif limit == "error":
-                list_species = "Unusual limit"
+                species = "Unusual limit"
             else:
-                list_species = "Limit out of range"
+                species = "Limit out of range"
 
-            contents = read_html_file("listSpecies.html").render(context={"todisplay": length, "todisplay2": limit, "todisplay3": list_species})
+
+            contents = read_html_file("listSpecies.html").render(context={"todisplay": length, "todisplay2": limit, "todisplay3": species})
             content_type = 'text/html'
             error_code = 200
 
@@ -128,13 +122,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     response = json.loads(r1.read().decode("utf-8"))
 
                     karyotype = response["karyotype"]
-                    list_karyotype = ""
-                    for e in karyotype:
-                        list_karyotype += "· " + e + "<br>"
-                    if list_karyotype == "":
-                        list_karyotype = "Karyotype not found"
 
-                    contents = read_html_file("Karyotype.html").render(context={"todisplay": list_karyotype})
+                    contents = read_html_file("Karyotype.html").render(context={"todisplay": karyotype})
                     error_code = 200
                     content_type = 'text/html'
 
@@ -149,9 +138,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             command = command.split("?")[1]
             specie = command.split("=")[1].split("&")[0].replace("+", " ").strip()
             chromosome = int(command.split("=")[2].strip())
-
-
-            print(specie, chromosome)
 
             for e in response_species["species"]:
                 if e["display_name"].strip().lower() == specie:
@@ -186,6 +172,83 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             content_type = 'text/html'
             error_code = 200
 
+
+        elif command2 == "/geneSeq":
+            gene = command.split("=")[1]
+
+            ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
+            URL = SERVER + ENDPOINT + PARAMS
+
+            print(f"Server: {SERVER}")
+            print(f"URL: {URL}")
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+
+            response = json.loads(r1.read().decode("utf-8"))
+
+            id = response["id"]
+
+            ENDPOINT = "/sequence/id/" + id
+            URL = SERVER + ENDPOINT + PARAMS
+
+            print()
+            print(f"Server: {SERVER}")
+            print(f"URL: {URL}")
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r2 = conn.getresponse()
+
+            print(f"Response received!: {r2.status} {r2.reason}\n")
+
+            response = json.loads(r2.read().decode("utf-8"))
+            sequence = response["seq"]
+
+            contents = read_html_file("geneSeq.html").render(context={"todisplay": sequence})
+
+            content_type = 'text/html'
+            error_code = 200
+
+        elif command2 == "/geneInfo":
+            gene = command.split("=")[1]
+
+            ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
+            URL = SERVER + ENDPOINT + PARAMS
+
+            print(f"Server: {SERVER}")
+            print(f"URL: {URL}")
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+
+            response = json.loads(r1.read().decode("utf-8"))
+
+
+
+
         else:
             contents = open("html/error.html", "r").read()
             error_code = 200
@@ -199,7 +262,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(contents.encode())
-
         return
 
 Handler = TestHandler
