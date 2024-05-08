@@ -91,6 +91,7 @@ class Seq:
         seq = seq[index:]
         self.seq = seq
         return seq
+
     def frequent_base(self):
         count_dict = self.seq_count()
         values = count_dict.values()
@@ -100,7 +101,6 @@ class Seq:
             if count_dict[e] == max_value:
                 result = e
         return result
-
 
     def bases_percentage(self):
         length = self.seq_len()
