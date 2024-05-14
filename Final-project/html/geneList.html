@@ -2,16 +2,18 @@
     <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <title>Karyotype</title>
+            <title>geneInfo</title>
         </head>
 
         <body style="background-color: #d8bfd8">
-        <p>The names of the chromosomes are:</p>
+        <h3>Chromosome genes form {{context.start}} to {{context.end}}:</h3>
             <ul>
-                {% for e in context.karyotype %}
+                {% for e in context.gene_list %}
                 <li>{{e}}</li>
                 {% endfor %}
             </ul>
+
+
         <p>
             <a href="/info/index.html">Main page</a>
         </p>

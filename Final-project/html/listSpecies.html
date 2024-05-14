@@ -5,11 +5,11 @@
             <title>List of species</title>
         </head>
         <body style="background-color: #d8bfd8">
-            <p>The total number of species in the ensemble is: {{context.todisplay}}</p>
-            <p>The limit you have selected is: {{context.todisplay2}}</p>
+            <p>The total number of species in the ensemble is: {{context.length}}</p>
+            <p>The limit you have selected is: {{context.limit}}</p>
             <p>The names of the species are:</p>
             <ul>
-                {% for e in context.todisplay3 %}
+                {% for e in context.species %}
                 <li>{{e}}</li>
                 {% endfor %}
             </ul>
