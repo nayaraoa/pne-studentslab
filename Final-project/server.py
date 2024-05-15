@@ -24,6 +24,8 @@ genes_dict = {"FRAT1": "ENSG00000165879",
               "KDR": "ENSG00000128052",
               "ANK2": "ENSG00000145362"}
 
+GENES = ["RNU6_269P", "TP53", "BRCA1", "BRCA2", "EGFR", "ACTB", "GAPDH", "HBB", "CFTR", "INS", "TNF", "IL6", "VEGFA", "APOE", "MTOR", "ESR1", "CDKN1A", "FTO", "PTEN", "RB1", "KIT", "JAK2", "FOXP3", "MYC", "KRAS", "MAPK1", "SLC2A4", "ALB", "TTN", "COL1A1", "ELN", "RB1", "ACE", "MTHFR", "P53", "CCND1", "BCL2", "APC", "SERPINA1", "SOD1", "G6PD", "TGFBR2", "ATM", "PDGFRA", "CDH1", "GHR", "HLA-A", "SLC6A4", "NOS3", "DRD2", "PAX6"]
+
 human_chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"]
 
 def read_html_file(filename):
