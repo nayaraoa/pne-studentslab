@@ -7,65 +7,24 @@ import json
 from pprint import pprint
 from Seq1 import Seq
 from urllib.parse import parse_qs, urlparse
+from tools import *
 
 IP = "127.0.0.1"
 PORT = 8080
 
 socketserver.TCPServer.allow_reuse_address = True
 
-genes_dict = {"FRAT1": "ENSG00000165879",
-              "ADA": "ENSG00000196839",
-              "FXN": "ENSG00000165060",
-              "RNU6_269P": "ENSG00000212379",
-              "MIR633": "ENSG00000207552",
-              "TTTY4C": "ENSG00000228296",
-              "RBMY2YP": "ENSG00000227633",
-              "FGFR3": "ENSG00000068078",
-              "KDR": "ENSG00000128052",
-              "ANK2": "ENSG00000145362"}
-
-GENES = ["RNU6_269P", "TP53", "BRCA1", "BRCA2", "EGFR", "ACTB", "GAPDH", "HBB", "CFTR", "INS", "TNF", "IL6", "VEGFA", "APOE", "MTOR", "ESR1", "CDKN1A", "FTO", "PTEN", "RB1", "KIT", "JAK2", "FOXP3", "MYC", "KRAS", "MAPK1", "SLC2A4", "ALB", "TTN", "COL1A1", "ELN", "RB1", "ACE", "MTHFR", "P53", "CCND1", "BCL2", "APC", "SERPINA1", "SOD1", "G6PD", "TGFBR2", "ATM", "PDGFRA", "CDH1", "GHR", "HLA-A", "SLC6A4", "NOS3", "DRD2", "PAX6"]
-
+genes_dict = {"FRAT1": "ENSG00000165879", "ADA": "ENSG00000196839",
+              "FXN": "ENSG00000165060", "RNU6_269P": "ENSG00000212379",
+              "MIR633": "ENSG00000207552", "TTTY4C": "ENSG00000228296",
+              "RBMY2YP": "ENSG00000227633", "FGFR3": "ENSG00000068078",
+              "KDR": "ENSG00000128052", "ANK2": "ENSG00000145362",
+              "TP53": "ENSG00000141510", "BRCA1": "ENSG00000012048",
+              "BRCA2": "ENSG00000139618", "EGFR": "ENSG00000146648",
+              "ACTB": "ENSG00000075624", "GAPDH": "ENSG00000111640",
+              "HBB": "ENSG00000244734"
+              }
 human_chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"]
-
-def read_html_file(filename):
-    contents = Path("html/" + filename).read_text()
-    contents = j.Template(contents)
-    return contents
-
-def specie_exist(list_species, name_specie):
-    if name_specie.capitalize() in list_species:
-        return True
-
-class ServerFormat():
-    def __init__(self, ENDPOINT, ADD = None):
-        self.ENDPOINT = ENDPOINT
-        self.ADD = ADD
-
-    def get_response(self):
-        SERVER = "rest.ensembl.org"
-        PARAMS = "?content-type=application/json"
-        URL = SERVER + self.ENDPOINT + PARAMS
-
-        print(f"Server: {SERVER}")
-        print(f"URL: {URL}")
-
-        conn = http.client.HTTPConnection(SERVER)
-        try:
-            if self.ADD == None:
-                conn.request("GET", self.ENDPOINT + PARAMS)
-            else:
-                conn.request("GET", self.ENDPOINT + PARAMS + self.ADD)
-        except ConnectionRefusedError:
-            print("ERROR! Cannot connect to the Server")
-            exit()
-
-        r1 = conn.getresponse()
-        print(f"Response received!: {r1.status} {r1.reason}\n")
-        response = json.loads(r1.read().decode("utf-8"))
-
-        return response
-
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -85,19 +44,20 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         if "gene" in parsed_path and parsed_path != "/geneList":
             gene = parameters["gene"][0]
             id = genes_dict[gene]
+
             ENDPOINT = "/sequence/id/" + id
-            s = ServerFormat(ENDPOINT)
-            response = s.get_response()
+            response = get_response(ENDPOINT)
             sequence = response["seq"]
+
 
         elif not "gene" in parsed_path:
             ENDPOINT = "/info/species"
-            s = ServerFormat(ENDPOINT)
-            response_species = s.get_response()
+            response_species = get_response(ENDPOINT)
             list_species = []
             for i in range(0, len(response_species["species"])):
                 list_species.append(response_species["species"][i]["display_name"])
             species = sorted(list_species)
+
 
         if parsed_path == "/" or parsed_path == "/index" or parsed_path == "/info/index":
             contents = open("html/index.html", "r").read()
@@ -133,49 +93,61 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
         elif parsed_path == "/Karyotype":
-            specie = parameters["species"][0]
+            s = Check_Parameter_Error()
+            ERROR, error = s.Karyotype_error(parameters)
 
-            existance = specie_exist(species, specie)
-            if existance != True:
-                error = "Species not found."
-                contents = read_html_file("error.html").render(context={"error": error})
+            if not ERROR:
+                specie = parameters["species"][0]
+                existance = specie_exist(species, specie)
+                if existance != True:
+                    error = "Species not found."
+                    contents = read_html_file("error.html").render(context={"error": error})
+                else:
+                    species_list = []
+                    for e in response_species["species"]:
+                        species_list.append(e["display_name"].lower())
+                        if e["display_name"].strip().lower() == specie:
+                            species_name = e["name"]
+
+                            ENDPOINT = "/info/assembly/" + species_name
+                            response = get_response(ENDPOINT)
+                            karyotype = response["karyotype"]
+                    contents = read_html_file("Karyotype.html").render(context={"karyotype": karyotype})
             else:
-                species_list = []
-                for e in response_species["species"]:
-                    species_list.append(e["display_name"].lower())
-                    if e["display_name"].strip().lower() == specie:
-                        species_name = e["name"]
-
-                        ENDPOINT = "/info/assembly/" + species_name
-                        s = ServerFormat(ENDPOINT)
-                        response = s.get_response()
-                        karyotype = response["karyotype"]
-                contents = read_html_file("Karyotype.html").render(context={"karyotype": karyotype})
+                contents = read_html_file("error.html").render(context={"error": error})
             content_type = 'text/html'
 
 
         elif parsed_path == "/chromosomeLength":
-            specie = parameters["species"][0]
-            chromosome = int(parameters["chromosome"][0])
+            s = Check_Parameter_Error()
+            ERROR, error = s.chromosomeLenght_error(parameters)
 
-            existance = specie_exist(species, specie)
-            if existance != True:
-                error = "Species not found."
-                contents = read_html_file("error.html").render(context={"error": error})
+            if not ERROR:
+                specie = parameters["species"][0]
+                chromosome = parameters["chromosome"][0]
+
+                existance = specie_exist(species, specie)
+                if existance != True:
+                    error = "Species not found."
+                    contents = read_html_file("error.html").render(context={"error": error})
+                else:
+                    for e in response_species["species"]:
+                        if e["display_name"].strip().lower() == specie:
+                            species_name = e["name"]
+
+                            ENDPOINT = "/info/assembly/" + species_name
+                            response = get_response(ENDPOINT)
+                            try:
+                                length = response["top_level_region"][int(chromosome)]["length"]
+                                contents = read_html_file("chromosomeLength.html").render(context={"todisplay": length})
+                            except ValueError:
+                                error = f"The chromosome '{chromosome}' does not exist."
+                                contents = read_html_file("error.html").render(context={"error": error})
+                            except IndexError:
+                                error = f"The chromosome '{chromosome}' does not exist."
+                                contents = read_html_file("error.html").render(context={"error": error})
             else:
-                for e in response_species["species"]:
-                    if e["display_name"].strip().lower() == specie:
-                        species_name = e["name"]
-
-                        ENDPOINT = "/info/assembly/" + species_name
-                        s = ServerFormat(ENDPOINT)
-                        response = s.get_response()
-                        try:
-                            length = response["top_level_region"][chromosome]["length"]
-                            contents = read_html_file("chromosomeLength.html").render(context={"todisplay": length})
-                        except IndexError:
-                            error = f"The chromosome {chromosome} does not exist."
-                            contents = read_html_file("error.html").render(context={"error": error})
+                contents = read_html_file("error.html").render(context={"error": error})
             content_type = 'text/html'
 
 
@@ -186,8 +158,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif parsed_path == "/geneInfo":
             ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
-            s = ServerFormat(ENDPOINT)
-            response = s.get_response()
+            response = get_response(ENDPOINT)
 
             start = response["start"]
             end = response["end"]
@@ -210,34 +181,44 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
         elif parsed_path == "/geneList":
-            chromosome = parameters["chromosome"][0]
-            start = parameters["start"][0]
-            end = parameters["end"][0]
+            s = Check_Parameter_Error()
+            ERROR, error = s.geneList_error(parameters)
 
-            if chromosome not in human_chromosomes:
-                error = "Chromosome not found."
-                ERROR = True
-            elif int(start) >= int(end) or int(start) <= 0:
-                error = "Unvalid error and/or start"
-                ERROR = True
+            if not ERROR:
+                chromosome = parameters["chromosome"][0]
+                start = parameters["start"][0]
+                end = parameters["end"][0]
+
+                if chromosome not in human_chromosomes:
+                    error = "Chromosome not found."
+                    ERROR2 = True
+                elif int(start) >= int(end) or int(start) <= 0:
+                    error = "Unvalid end and/or start"
+                    ERROR2 = True
+                else:
+                    ERROR2 = False
+
+                ENDPOINT = f"/overlap/region/human/{chromosome}:{start}-{end}"
+                #PARAMS = "?content-type=application/json;feature=gene;feature=transcript;feature=cds;feature=exon"
+                PARAMS = "?feature=gene;feature=transcript;feature=cds;feature=exon;content-type=application/json"
+
+                response = get_response(ENDPOINT, PARAMS)
+
+                pprint(response)
+
+                gene_list = []
+                for e in response:
+                    try:
+                        gene_list.append(e["logic_name"])
+                    except KeyError:
+                        pass
+
+                if ERROR2:
+                    contents = read_html_file("error.html").render(context={"error": error})
+                else:
+                    contents = read_html_file("geneList.html").render(context={"chromosome": chromosome, "start": start, "end": end, "gene_list": gene_list})
             else:
-                ERROR = False
-
-            ENDPOINT = "/overlap/region/human/" + chromosome + ":" + start + "-" + end
-
-            s = ServerFormat(ENDPOINT)
-            response = s.get_response()
-
-            pprint(response)
-
-            gene_list = []
-            for i in range(int(start), int(end)):
-                gene_list.append(response[i]["external_name"])
-
-            if ERROR:
                 contents = read_html_file("error.html").render(context={"error": error})
-            else:
-                contents = read_html_file("geneList.html").render(context={"start": start, "end": end, "gene_list": gene_list})
             content_type = 'text/html'
 
 
