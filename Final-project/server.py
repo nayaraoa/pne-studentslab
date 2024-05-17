@@ -35,11 +35,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         parsed_path = parsed_path.replace(".html", "").replace("/info", "")
         parameters = parse_qs(url_path.query)
 
+        json_parameter = parameters.get("json", [0])
+
         print(" path: ", end="")
         pprint(parsed_path)
         print(" parameters: ", end="")
         pprint(parameters)
 
+        content_type = 'text/html'
+        if json_parameter[0] == "1":
+            JSON = True
+            content_type = "application/json"
 
         if "gene" in parsed_path and parsed_path != "/geneList":
             gene = parameters["gene"][0]
@@ -48,7 +54,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             ENDPOINT = "/sequence/id/" + id
             response = get_response(ENDPOINT)
             sequence = response["seq"]
-
 
         elif not "gene" in parsed_path:
             ENDPOINT = "/info/species"
@@ -61,7 +66,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         if parsed_path == "/" or parsed_path == "/index" or parsed_path == "/info/index":
             contents = open("html/index.html", "r").read()
-            content_type = 'text/html'
 
 
         elif parsed_path == "/listSpecies":
@@ -89,7 +93,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             else:
                 contents = read_html_file("listSpecies.html").render(
                     context={"length": length, "limit": limit, "species": species})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/Karyotype":
@@ -115,7 +118,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file("Karyotype.html").render(context={"karyotype": karyotype})
             else:
                 contents = read_html_file("error.html").render(context={"error": error})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/chromosomeLength":
@@ -148,12 +150,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                                 contents = read_html_file("error.html").render(context={"error": error})
             else:
                 contents = read_html_file("error.html").render(context={"error": error})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/geneSeq":
             contents = read_html_file("geneSeq.html").render(context={"todisplay": sequence})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/geneInfo":
@@ -166,7 +166,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             length = len(sequence)
             contents = read_html_file("geneInfo.html").render(
                 context={"start": start, "end": end, "length": length, "id": id, "chromosome_name": gene})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/geneCalc":
@@ -177,7 +176,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             contents = read_html_file("geneCalc.html").render(
                 context={"length": length, "A": bases_percent["A"], "C": bases_percent["C"], "G": bases_percent["G"],
                          "T": bases_percent["T"]})
-            content_type = 'text/html'
 
 
         elif parsed_path == "/geneList":
@@ -190,7 +188,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 end = parameters["end"][0]
 
                 if chromosome not in human_chromosomes:
-                    error = "Chromosome not found."
+                    error = f"Chromosome '{chromosome}' not found."
                     ERROR2 = True
                 elif int(start) >= int(end) or int(start) <= 0:
                     error = "Unvalid end and/or start"
@@ -198,34 +196,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     ERROR2 = False
 
-                ENDPOINT = f"/overlap/region/human/{chromosome}:{start}-{end}"
-                #PARAMS = "?content-type=application/json;feature=gene;feature=transcript;feature=cds;feature=exon"
-                PARAMS = "?feature=gene;feature=transcript;feature=cds;feature=exon;content-type=application/json"
-
-                response = get_response(ENDPOINT, PARAMS)
-
-                pprint(response)
-
-                gene_list = []
-                for e in response:
-                    try:
-                        gene_list.append(e["logic_name"])
-                    except KeyError:
-                        pass
-
                 if ERROR2:
                     contents = read_html_file("error.html").render(context={"error": error})
                 else:
+                    ENDPOINT = f"/overlap/region/human/{chromosome}:{start}-{end}"
+                    PARAMS = "?feature=gene;feature=transcript;feature=cds;feature=exon;content-type=application/json"
+                    response = get_response(ENDPOINT, PARAMS)
+
+                    gene_list = []
+                    for e in response:
+                        if e["feature_type"] == "gene":
+                            try:
+                                gene_list.append(e["external_name"])
+                            except KeyError:
+                                pass
                     contents = read_html_file("geneList.html").render(context={"chromosome": chromosome, "start": start, "end": end, "gene_list": gene_list})
             else:
                 contents = read_html_file("error.html").render(context={"error": error})
-            content_type = 'text/html'
 
 
         else:
             error = "Resource not found."
             contents = read_html_file("error.html").render(context={"error": error})
-            content_type = 'text/html'
 
         self.send_response(404)
         self.send_header('Content-Type', content_type)
