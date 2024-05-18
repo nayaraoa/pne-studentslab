@@ -3,6 +3,7 @@ import http.client
 import jinja2 as j
 from pathlib import Path
 import http.server
+from http import HTTPStatus
 
 GENES = ["FRAT1", "RNU6_269P", "TP53", "BRCA1", "BRCA2", "EGFR", "ACTB", "GAPDH", "HBB", "CFTR", "INS", "TNF", "IL6", "VEGFA",
          "APOE", "MTOR", "ESR1", "CDKN1A", "FTO", "PTEN", "RB1", "KIT", "JAK2", "FOXP3", "MYC", "KRAS", "MAPK1",
@@ -49,10 +50,10 @@ def get_response(ENDPOINT, PARAMS_given=None):
     return response
 
 
-def get_id(gene):                    #Seria usada si el cliente diese el gen escribiendo (en vez de seleccionando)
+def get_id(gene):
     SERVER = "rest.ensembl.org"
     PARAMS = "?content-type=application/json"
-    ENDPOINT = "/homology/symbol/human/" + gene.capitlaized()
+    ENDPOINT = "/homology/symbol/human/" + gene
     URL = SERVER + ENDPOINT + PARAMS
 
     print(f"Server: {SERVER}")
@@ -69,9 +70,14 @@ def get_id(gene):                    #Seria usada si el cliente diese el gen esc
     print(f"Response received!: {r1.status} {r1.reason}\n")
     response = json.loads(r1.read().decode("utf-8"))
 
-    id = response["data"][0]["id"]
+    if r1.status == HTTPStatus.OK:
+        id = response["data"][0]["id"]
+        error = None
+    else:
+        id = None
+        error = "Gene not found."
 
-    return id
+    return id, error
 
 
 class Check_Parameter_Error():
@@ -111,7 +117,7 @@ class Check_Parameter_Error():
             error = None
         return ERROR, error
 
-    def gene_seq_error(self, parameters):    #Seria usada si el cliente diese el gen escribiendo (en vez de seleccionando)
+    def gene_seq_error(self, parameters):
         if not "gene" in parameters:
             ERROR = True
             error = "The gene must be indicated."

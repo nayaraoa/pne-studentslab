@@ -48,12 +48,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             content_type = "application/json"
 
         if "gene" in parsed_path and parsed_path != "/geneList":
-            gene = parameters["gene"][0]
-            id = genes_dict[gene]
+            s = Check_Parameter_Error()
+            ERROR, error = s.gene_seq_error(parameters)
 
-            ENDPOINT = "/sequence/id/" + id
-            response = get_response(ENDPOINT)
-            sequence = response["seq"]
+            if ERROR:
+                contents = read_html_file("error.html").render(context={"error": error})
+            else:
+                gene = parameters["gene"][0]
+                id, error = get_id(gene)
+
+                if id != None:
+                    ENDPOINT = "/sequence/id/" + id
+                    response = get_response(ENDPOINT)
+                    sequence = response["seq"]
+                else:
+                    ERROR = True
+                    contents = read_html_file("error.html").render(context={"error": error})
 
         elif not "gene" in parsed_path:
             ENDPOINT = "/info/species"
@@ -153,29 +163,40 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
         elif parsed_path == "/geneSeq":
-            contents = read_html_file("geneSeq.html").render(context={"todisplay": sequence})
+            if not ERROR:
+                contents = read_html_file("geneSeq.html").render(context={"todisplay": sequence})
 
 
         elif parsed_path == "/geneInfo":
-            ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
-            response = get_response(ENDPOINT)
+            if not ERROR:
+                ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
+                response = get_response(ENDPOINT)
+                print(response)
+                ERROR2 = False
 
-            start = response["start"]
-            end = response["end"]
+                try:
+                    start = response["start"]
+                    end = response["end"]
+                except KeyError:
+                    ERROR2 = True
+                    error = "Gene not found."
 
-            length = len(sequence)
-            contents = read_html_file("geneInfo.html").render(
-                context={"start": start, "end": end, "length": length, "id": id, "chromosome_name": gene})
-
+                if not ERROR2:
+                    length = len(sequence)
+                    contents = read_html_file("geneInfo.html").render(
+                        context={"start": start, "end": end, "length": length, "id": id, "chromosome_name": gene})
+                else:
+                    contents = read_html_file("error.html").render(context={"error": error})
 
         elif parsed_path == "/geneCalc":
-            length = len(sequence)
-            s2 = Seq(sequence)
-            bases_percent = s2.bases_percentage()[1]
+            if not ERROR:
+                length = len(sequence)
+                s2 = Seq(sequence)
+                bases_percent = s2.bases_percentage()[1]
 
-            contents = read_html_file("geneCalc.html").render(
-                context={"length": length, "A": bases_percent["A"], "C": bases_percent["C"], "G": bases_percent["G"],
-                         "T": bases_percent["T"]})
+                contents = read_html_file("geneCalc.html").render(
+                    context={"length": length, "A": bases_percent["A"], "C": bases_percent["C"], "G": bases_percent["G"],
+                             "T": bases_percent["T"]})
 
 
         elif parsed_path == "/geneList":
