@@ -1,7 +1,8 @@
 import http.client
 import json
 from tools import *
-import termcolor
+
+#It is not finished
 
 SERVER = "rest.ensembl.org"
 

@@ -1,13 +1,10 @@
-import http.server
 import socketserver
 import termcolor
-import jinja2 as j
-from pathlib import Path
-import json
 from pprint import pprint
 from Seq1 import Seq
 from urllib.parse import parse_qs, urlparse
 from tools import *
+#I started to organize the advance level but i didn´t had time to finish it.
 
 IP = "127.0.0.1"
 PORT = 8080
@@ -171,7 +168,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if not ERROR:
                 ENDPOINT = "/lookup/symbol/homo_sapiens/" + gene
                 response = get_response(ENDPOINT)
-                print(response)
                 ERROR2 = False
 
                 try:
