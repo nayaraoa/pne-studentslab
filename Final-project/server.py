@@ -4,23 +4,13 @@ from pprint import pprint
 from Seq1 import Seq
 from urllib.parse import parse_qs, urlparse
 from tools import *
-#I started to organize the advance level but i didn´t had time to finish it.
+#(I started to organize the advance level but i didn´t had time to finish it.)
 
 IP = "127.0.0.1"
 PORT = 8080
 
 socketserver.TCPServer.allow_reuse_address = True
 
-genes_dict = {"FRAT1": "ENSG00000165879", "ADA": "ENSG00000196839",
-              "FXN": "ENSG00000165060", "RNU6_269P": "ENSG00000212379",
-              "MIR633": "ENSG00000207552", "TTTY4C": "ENSG00000228296",
-              "RBMY2YP": "ENSG00000227633", "FGFR3": "ENSG00000068078",
-              "KDR": "ENSG00000128052", "ANK2": "ENSG00000145362",
-              "TP53": "ENSG00000141510", "BRCA1": "ENSG00000012048",
-              "BRCA2": "ENSG00000139618", "EGFR": "ENSG00000146648",
-              "ACTB": "ENSG00000075624", "GAPDH": "ENSG00000111640",
-              "HBB": "ENSG00000244734"
-              }
 human_chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"]
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
@@ -77,20 +67,26 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif parsed_path == "/listSpecies":
             length = len(response_species["species"])
-            limit = parameters["limit"][0]
+            try:
+                limit = parameters["limit"][0]
+            except KeyError:
+                limit = None
 
-            if limit != "":
+            if limit != "" and limit != None:
                 try:
                     limit = int(limit)
                 except ValueError:
                     limit = "error"
 
-            if limit != "" and limit != "error" and 0 <= limit <= length:
+            if limit != "" and limit != None and limit != "error" and 0 <= limit <= length:
                 species = species[:limit]
                 ERROR = False
             elif limit == "error":
                 ERROR = True
                 error = "Unusual limit"
+            elif limit == None:
+                ERROR = False
+                species = species
             else:
                 ERROR = True
                 error = "Limit out of range"
@@ -102,7 +98,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     context={"length": length, "limit": limit, "species": species})
 
 
-        elif parsed_path == "/Karyotype":
+        elif parsed_path == "/karyotype":
             s = Check_Parameter_Error()
             ERROR, error = s.Karyotype_error(parameters)
 
@@ -116,13 +112,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     species_list = []
                     for e in response_species["species"]:
                         species_list.append(e["display_name"].lower())
-                        if e["display_name"].strip().lower() == specie:
-                            species_name = e["name"]
 
+                        if e["display_name"].strip().lower() == specie.strip().lower():
+                            species_name = e["name"]
                             ENDPOINT = "/info/assembly/" + species_name
                             response = get_response(ENDPOINT)
                             karyotype = response["karyotype"]
-                    contents = read_html_file("Karyotype.html").render(context={"karyotype": karyotype})
+                            contents = read_html_file("Karyotype.html").render(context={"karyotype": karyotype})
             else:
                 contents = read_html_file("error.html").render(context={"error": error})
 
@@ -133,7 +129,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             if not ERROR:
                 specie = parameters["species"][0]
-                chromosome = parameters["chromosome"][0]
+                chromosome = parameters["chromo"][0]
 
                 existance = specie_exist(species, specie)
                 if existance != True:
@@ -200,7 +196,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             ERROR, error = s.geneList_error(parameters)
 
             if not ERROR:
-                chromosome = parameters["chromosome"][0]
+                chromosome = parameters["chromo"][0]
                 start = parameters["start"][0]
                 end = parameters["end"][0]
 

@@ -94,7 +94,7 @@ class Check_Parameter_Error():
         if not "species" in parameters:
             ERROR = True
             error = "The species must be indicated."
-        elif not "chromosome" in parameters:
+        elif not "chromo" in parameters:
             ERROR = True
             error = "The chromosome must be indicated."
         else:
@@ -106,7 +106,7 @@ class Check_Parameter_Error():
         if not "start" in parameters:
             ERROR = True
             error = "The start must be indicated."
-        elif not "chromosome" in parameters:
+        elif not "chromo" in parameters:
             ERROR = True
             error = "The chromosome must be indicated."
         elif not "end" in parameters:

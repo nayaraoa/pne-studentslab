@@ -2,7 +2,7 @@ import http.client
 import json
 from tools import *
 
-#It is not finished
+#(It is not finished)
 
 SERVER = "rest.ensembl.org"
 
